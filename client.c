@@ -12,7 +12,7 @@ int main(int argc, char **argv) {
     char *host = "127.0.0.1";
     int port = 10000;
     char *path = "/";
-    char http_msg_line[256];
+    char http_msg[BUFSIZ];
     char buf[BUFSIZ];
     struct sockaddr_in servaddr;
 
@@ -37,19 +37,19 @@ int main(int argc, char **argv) {
         perror("connect"); exit(1);
     }
     // Read / Write
-    sprintf(http_msg_line, "GET %s HTTP/1.0\r\nHost: %s:%d\r\n\r\n", path, host, port);
-    puts(http_msg_line);
+    sprintf(http_msg, "GET %s HTTP/1.0\r\nHost: %s:%d\r\n\r\n", path, host, port);
+    puts(http_msg);
 
-    // sprintf(http_msg_line, "GET %s HTTP/1.0\r\n", path);
-    // puts(http_msg_line);
-    // write(sockfd, http_msg_line, strlen(http_msg_line)+1);
+    // sprintf(http_msg, "GET %s HTTP/1.0\r\n", path);
+    // puts(http_msg);
+    // write(sockfd, http_msg, strlen(http_msg)+1);
 
-    // sprintf(http_msg_line, "Host: %s:%d\r\n", host, port);
-    // puts(http_msg_line);
-    // write(sockfd, http_msg_line, strlen(http_msg_line)+1);
+    // sprintf(http_msg, "Host: %s:%d\r\n", host, port);
+    // puts(http_msg);
+    // write(sockfd, http_msg, strlen(http_msg)+1);
 
-    // sprintf(http_msg_line, "\r\n");
-    write(sockfd, http_msg_line, strlen(http_msg_line)+1);
+    // sprintf(http_msg, "\r\n");
+    write(sockfd, http_msg, strlen(http_msg)+1);
 
     nbytes = read(sockfd, buf, sizeof(buf)-1);
     buf[nbytes] = '\0';
