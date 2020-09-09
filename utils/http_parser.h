@@ -1,8 +1,7 @@
 #include <stdio.h>
-#include <unistd.h>
 
-#ifndef http_parser_h
-#define http_parser_h
+#ifndef HTTP_PARSER_H
+#define HTTP_PARSER_H
 typedef struct http_req_template {
     char *method;
     float http_ver;
