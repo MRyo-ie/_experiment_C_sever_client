@@ -36,6 +36,16 @@ fail:
     return -1;
 }
 
+
+void print_parsed_req(http_req parsed_req) {
+    debug_print("Info", "http_req の中身の表示テスト", true);
+    debug_print_str("method", parsed_req.method, true);
+    debug_print_float("http_ver", parsed_req.http_ver, true);
+    debug_print_str("host", parsed_req.host, true);
+    debug_print_str("accept", parsed_req.accept, true);
+    debug_print_str("user_agent", parsed_req.user_agent, true);
+}
+
 // HTTP Request ヘッダー（１行分）から、メソッド、HTTPバージョン、key:value を抽出する。
 void extract_HTTP_header(char *line, http_req parsed_req) {
     // 「メソッド + HTTPバージョン」「key:value」 のどちらなのかを判定する。
@@ -51,20 +61,22 @@ void parse_HTTP_req(char *http_req_str, http_req parsed_req) {
         Accept: * / *
     */
     int n = find_header_term(http_req_str);
-    printf("[Info] str_len(http_req_str) : %d,    n : %d\n",
-           str_len(http_req_str), n);
+    // debug_print("Info", "HTTPヘッダの切り出しテスト", true);
+    // debug_print_int("str_len(http_req_str)", str_len(http_req_str), true);
+    // debug_print_int("n", n, true);
 
     // 行に分解して、行ごとにヘッダを抽出する。
     char line[BUFSIZ];
     int idx = 0;
     char *p = http_req_str;
+    // debug_print("Info", "行ごとに切り分けられているかテスト", true);
     while (*p) {
         line[idx] = *p;
         // 行終わり
         if (*p == '\n' || *p == '\r') {
             line[idx] = '\0';
             if (*p == '\n') {
-                printf("[Info] line : %s\n", line);
+                // debug_print_str("line", line, true);
                 // 今回の行のヘッダ情報を抽出する。
                 extract_HTTP_header(line, parsed_req);
                 idx = 0;
@@ -74,4 +86,6 @@ void parse_HTTP_req(char *http_req_str, http_req parsed_req) {
         }
         p++;
     }
+
+    print_parsed_req(parsed_req);
 }

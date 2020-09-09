@@ -3,13 +3,16 @@
 RETSIGTYPE reaper(int sn) {
     pid_t cpid; int cr;
     do {
-  try_waitpid:
-    cpid=waitpid((pid_t)-1, &cr,
-            WNOHANG|WUNTRACED);
-    if(cpid<0) {
-        if(errno==EINTR){goto try_waitpid;}}
-    if(cpid>0) {
-        printf("[Info] pid : %d,  ret : %d\n", cpid,cr);}
+    try_waitpid:
+        cpid=waitpid((pid_t)-1, &cr,
+                WNOHANG|WUNTRACED);
+        if(cpid<0) {
+            if(errno==EINTR){goto try_waitpid;}}
+        if(cpid>0) {
+            debug_print("Info", "reaper!", true);
+            debug_print_int("pid", cpid, false);
+            debug_print_int("ret", cr, true);
+        }
     } while(cpid>0);
 }
 
@@ -55,7 +58,8 @@ int main(void) {
         if (pid == 0) {
             close(listenfd);
             while ((nbytes = read(connfd, http_msg, sizeof(http_msg))) > 0) {
-                printf("[Info] HTTP Request ↓\n%s \n", http_msg);  // HTTPリクエストを表示
+                debug_print("Info", "HTTP Request ↓ (http_msg)", true);
+                printf("%s\n", http_msg);  // HTTPリクエストを表示
                 parse_HTTP_req(http_msg, parsed_http_req);
                 // ファイル読み込み
                 // read_file_binary("test.txt", fb_buf);

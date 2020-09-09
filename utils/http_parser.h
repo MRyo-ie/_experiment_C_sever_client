@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include "debug_print.h"
 
 #ifndef HTTP_PARSER_H
 #define HTTP_PARSER_H
