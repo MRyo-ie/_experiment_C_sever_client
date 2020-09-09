@@ -6,6 +6,9 @@
 #include <sys/socket.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include "utils/file_rw.h"
+#include "utils/http_parser.h"
+#include "utils/http_builder.h"
 
 #define RETSIGTYPE void
 #define LISTEN_DOMAIN "localhost"
