@@ -5,15 +5,14 @@
 
 #ifndef HTTP_PARSER_H
 #define HTTP_PARSER_H
-typedef struct http_req_template {
-    char *method;
-    char *path;
-    char *http_ver;
-    char *host;
-    char *user_agent;
-    char *accept;
-} http_req;
-/*
+// typedef struct http_req_template {
+//     char *method;
+//     char *path;
+//     char *http_ver;
+//     char *host;
+//     char *user_agent;
+//     char *accept;
+// } http_req;
 typedef struct http_req_template {
     char method[8];
     char path[256];
@@ -22,7 +21,6 @@ typedef struct http_req_template {
     char user_agent[256];
     char accept[128];
 } http_req;
-*/
 
 typedef enum {
     Host,

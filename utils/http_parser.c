@@ -74,19 +74,19 @@ int extract_HTTP_header(char *line, http_req* parsed_req) {
                 // スペース区切り
                 switch (div_num) {
                     case 0:  //  GET, POST, HEAD
-                        parsed_req->method = buf_arr[div_num];
-                        // debug_print_str("    parsed_req->method",
-                        //                 parsed_req->method, true);
+                        sprintf(parsed_req->method, "%s", buf_arr[div_num]);
+                        debug_print_str("    parsed_req->method",
+                                        parsed_req->method, true);
                         break;
                     case 1:  //  /path
-                        parsed_req->path = buf_arr[div_num];
-                        // debug_print_str("    parsed_req->path",
-                        //                 parsed_req->path, true);
+                        sprintf(parsed_req->path, "%s", buf_arr[div_num]);
+                        debug_print_str("    parsed_req->path",
+                                        parsed_req->path, true);
                         break;
                     case 2:  //  HTTP/1.1
-                        parsed_req->http_ver = buf_arr[div_num];
-                        // debug_print_str("    parsed_req->http_ver",
-                        //                 parsed_req->http_ver, true);
+                        sprintf(parsed_req->http_ver, "%s", buf_arr[div_num]);
+                        debug_print_str("    parsed_req->http_ver",
+                                        parsed_req->http_ver, true);
                         break;
                     default:
                         debug_print("Error", "div_num の値が不正です。", true);
@@ -150,13 +150,13 @@ int extract_HTTP_header(char *line, http_req* parsed_req) {
         if (key_enum < HTTP_HEAD_KEY_NUM)
             switch (key_enum) {
                 case Host:
-                    parsed_req->host = val;
+                    sprintf(parsed_req->host, "%s", val);
                     break;
                 case User_Agent:
-                    parsed_req->user_agent = val;
+                    sprintf(parsed_req->user_agent, "%s", val);
                     break;
                 case Accept:
-                    parsed_req->accept = val;
+                    sprintf(parsed_req->accept, "%s", val);
                     break;
                 default:
                     break;
@@ -195,9 +195,9 @@ void parse_HTTP_req(char *http_req_str, http_req* parsed_req) {
                 if (idx != 0) { // 空行は飛ばす。
                     // 今回の行のヘッダ情報を抽出する。
                     extract_HTTP_header(line, parsed_req);
-                    // debug_print_str("  [parse_HTTP_req()]  method", parsed_req->method, true);
-                    // debug_print_str("  [parse_HTTP_req()]  path", parsed_req->path, true);
-                    // debug_print_str("  [parse_HTTP_req()]  http_ver", parsed_req->http_ver, true);
+                    debug_print_str("  [parse_HTTP_req()]  method", parsed_req->method, true);
+                    debug_print_str("  [parse_HTTP_req()]  path", parsed_req->path, true);
+                    debug_print_str("  [parse_HTTP_req()]  http_ver", parsed_req->http_ver, true);
                     putchar('\n');
                 }
                 idx = 0;
