@@ -87,5 +87,7 @@ dkms.conf
 
 # その他
 samples/
+datas/*.jpg
+datas/*.png
 .vscode
 

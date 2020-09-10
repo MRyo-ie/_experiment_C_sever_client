@@ -1,5 +1,7 @@
 #include "http_parser.h"
 
+static const bool is_debug_mode = false;
+
 // 文字列(char*) の文字数を数える。
 int str_len(const char *s) {
     int n = 0;
@@ -37,13 +39,13 @@ fail:
 }
 
 void print_parsed_req(http_req *parsed_req) {
-    debug_print("Info", "http_req の中身", true);
-    debug_print_str("method", parsed_req->method, true);
-    debug_print_str("path", parsed_req->path, true);
-    debug_print_str("http_ver", parsed_req->http_ver, true);
-    debug_print_str("host", parsed_req->host, true);
-    debug_print_str("accept", parsed_req->accept, true);
-    debug_print_str("user_agent", parsed_req->user_agent, true);
+    debug_print("Info", "http_req の中身", true, is_debug_mode);
+    debug_print_str("method", parsed_req->method, true, is_debug_mode);
+    debug_print_str("path", parsed_req->path, true, is_debug_mode);
+    debug_print_str("http_ver", parsed_req->http_ver, true, is_debug_mode);
+    debug_print_str("host", parsed_req->host, true, is_debug_mode);
+    debug_print_str("accept", parsed_req->accept, true, is_debug_mode);
+    debug_print_str("user_agent", parsed_req->user_agent, true, is_debug_mode);
 }
 
 // HTTP Request ヘッダ ー（１行分）から、メソッド、HTTPバージョン、key:value
@@ -64,32 +66,32 @@ int extract_HTTP_header(char *line, http_req* parsed_req) {
         while (true) {
             *buf_p = *p;
             // debug
-            debug_print_char("*p", *p, false);
-            debug_print_char("*buf_p", *buf_p, false);
-            debug_print_int("div_num", div_num, true);
+            debug_print_char("*p", *p, false, is_debug_mode);
+            debug_print_char("*buf_p", *buf_p, false, is_debug_mode);
+            debug_print_int("div_num", div_num, true, is_debug_mode);
             // 区切り文字： ' '
             if (*p == ' ' || *p == '\0') {
                 *buf_p = '\0';  // * をつけると中身の参照になる。
-                printf("  buf_arr[%d] : \"%s\"\n", div_num, buf_arr[div_num]);
+                // printf("  buf_arr[%d] : \"%s\"\n", div_num, buf_arr[div_num]);
                 // スペース区切り
                 switch (div_num) {
                     case 0:  //  GET, POST, HEAD
                         sprintf(parsed_req->method, "%s", buf_arr[div_num]);
                         debug_print_str("    parsed_req->method",
-                                        parsed_req->method, true);
+                                        parsed_req->method, true, is_debug_mode);
                         break;
                     case 1:  //  /path
                         sprintf(parsed_req->path, "%s", buf_arr[div_num]);
                         debug_print_str("    parsed_req->path",
-                                        parsed_req->path, true);
+                                        parsed_req->path, true, is_debug_mode);
                         break;
                     case 2:  //  HTTP/1.1
                         sprintf(parsed_req->http_ver, "%s", buf_arr[div_num]);
                         debug_print_str("    parsed_req->http_ver",
-                                        parsed_req->http_ver, true);
+                                        parsed_req->http_ver, true, is_debug_mode);
                         break;
                     default:
-                        debug_print("Error", "div_num の値が不正です。", true);
+                        debug_print("Error", "div_num の値が不正です。", true, is_debug_mode);
                         break;
                 }
                 // 行の最後なら、break する。
@@ -102,8 +104,6 @@ int extract_HTTP_header(char *line, http_req* parsed_req) {
             }
             p++;
         }
-        // debug_print_str("    parsed_req->http_ver", parsed_req->http_ver, true);
-
     } else {  // ＜2行目以降＞ key: val  →  {"key", "val"}
         char key[32], val[256];
         buf_p = &(key[0]);
@@ -111,27 +111,26 @@ int extract_HTTP_header(char *line, http_req* parsed_req) {
         while (true) {  // *p == '\0' で抜ける
             *buf_p = *p;
             // debug
-            debug_print_char("*p", *p, false);
-            debug_print_char("*buf_p", *buf_p, false);
-            debug_print_int("div_num", div_num, true);
+            debug_print_char("*p", *p, false, is_debug_mode);
+            debug_print_char("*buf_p", *buf_p, false, is_debug_mode);
+            debug_print_int("div_num", div_num, true, is_debug_mode);
             // 行の最後なら、break する。
             if (*p == '\0') {
-                debug_print_str("val", val, true);
+                debug_print_str("val", val, true, is_debug_mode);
                 break;
             }
             if ((div_num == 0 && *p == *div_p) || *p == '\0') {
                 // ": " を検出した。 => keyを抽出する。
                 *buf_p = '\0';
-                debug_print_str("key", key, true);
-                printf("      enum 検索中...\n");
+                debug_print_str("key", key, true, is_debug_mode);
+                debug_print_msg("      enum 検索中...", true, is_debug_mode);
                 for (int i = 0; i < HTTP_HEAD_KEY_NUM; i++) {
                     // 同じなら、その変数の
-                    printf("        key : \"%s\"  =?  \"%s\"", key,
-                           http_head_keys[i]);
+                    // printf("        key : \"%s\"  =?  \"%s\"", key, http_head_keys[i]);
                     debug_print_int("=>  strcmp(key, http_head_keys[i])",
-                                    strcmp(key, http_head_keys[i]), true);
+                                    strcmp(key, http_head_keys[i]), true, is_debug_mode);
                     if (strcmp(key, http_head_keys[i]) == 0) {
-                        printf("      enum ヒット！\n");
+                        debug_print_msg("      enum ヒット！", true, is_debug_mode);
                         key_enum = (HTTP_HEAD_KEYS)i;
                         break;
                     }
@@ -162,7 +161,6 @@ int extract_HTTP_header(char *line, http_req* parsed_req) {
                     break;
             }
     }
-
     return 0;
 }
 
@@ -175,30 +173,30 @@ void parse_HTTP_req(char *http_req_str, http_req* parsed_req) {
         Accept: * / *
     */
     int n = find_header_term(http_req_str);
-    // debug_print("Info", "HTTPヘッダの切り出しテスト", true);
-    // debug_print_int("str_len(http_req_str)", str_len(http_req_str), true);
-    // debug_print_int("n", n, true);
+    // debug_print("Info", "HTTPヘッダの切り出しテスト", true, is_debug_mode);
+    // debug_print_int("str_len(http_req_str)", str_len(http_req_str), true, is_debug_mode);
+    // debug_print_int("n", n, true, is_debug_mode);
 
     // 行に分解して、行ごとにヘッダを抽出する。
     char line[BUFSIZ];
     int idx = 0;
     char *p = http_req_str;
-    debug_print("Info", "行ごとに切り分けられているかテスト", true);
+    debug_print("Info", "行ごとに切り分けられているかテスト", true, is_debug_mode);
     while (*p) {
         line[idx] = *p;
         // 行終わり
         if (*p == '\n' || *p == '\r') {
             line[idx] = '\0';
             if (*p == '\n') {
-                debug_print("Info", "", false);
-                debug_print_str("line", line, true);
+                debug_print("Info", "", false, is_debug_mode);
+                debug_print_str("line", line, true, is_debug_mode);
                 if (idx != 0) { // 空行は飛ばす。
                     // 今回の行のヘッダ情報を抽出する。
                     extract_HTTP_header(line, parsed_req);
-                    debug_print_str("  [parse_HTTP_req()]  method", parsed_req->method, true);
-                    debug_print_str("  [parse_HTTP_req()]  path", parsed_req->path, true);
-                    debug_print_str("  [parse_HTTP_req()]  http_ver", parsed_req->http_ver, true);
-                    putchar('\n');
+                    debug_print_str("  [parse_HTTP_req()]  method", parsed_req->method, true, is_debug_mode);
+                    debug_print_str("  [parse_HTTP_req()]  path", parsed_req->path, true, is_debug_mode);
+                    debug_print_str("  [parse_HTTP_req()]  http_ver", parsed_req->http_ver, true, is_debug_mode);
+                    debug_print_msg("", true, is_debug_mode);
                 }
                 idx = 0;
             }

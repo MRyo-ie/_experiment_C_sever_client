@@ -1,5 +1,7 @@
 #include "server.h"
 
+static const bool is_debug_mode = true;
+
 RETSIGTYPE reaper(int sn) {
     pid_t cpid; int cr;
     do {
@@ -9,9 +11,9 @@ RETSIGTYPE reaper(int sn) {
         if(cpid<0) {
             if(errno==EINTR){goto try_waitpid;}}
         if(cpid>0) {
-            debug_print("Info", "reaper!", true);
-            debug_print_int("pid", cpid, false);
-            debug_print_int("ret", cr, true);
+            debug_print("Info", "reaper!", true, is_debug_mode);
+            debug_print_int("pid", cpid, false, is_debug_mode);
+            debug_print_int("ret", cr, true, is_debug_mode);
         }
     } while(cpid>0);
 }
@@ -21,7 +23,7 @@ int main(void) {
     int listenfd, connfd, nbytes;
     char http_msg[BUFSIZ];
     struct http_req_template parsed_http_req;
-    int fb_buf[BUFSIZ];
+    char fb_buf[BUFSIZ];
     struct sockaddr_in servaddr;
 
     //***  初期化  ***//
@@ -58,12 +60,14 @@ int main(void) {
         if (pid == 0) {
             close(listenfd);
             while ((nbytes = read(connfd, http_msg, sizeof(http_msg))) > 0) {
-                debug_print("Info", "HTTP Request ↓ (http_msg)", true);
+                debug_print("Info", "HTTP Request ↓ (http_msg)", true, is_debug_mode);
                 printf("%s\n", http_msg);  // HTTPリクエストを表示
                 parse_HTTP_req(http_msg, &parsed_http_req);
                 // ファイル読み込み
-                // read_file_binary("test.txt", fb_buf);
-                // printf("%s \n", fb_buf);
+                int fsize = read_file_binary("test.txt", fb_buf);
+                debug_print("Info", "ファイルの中身を表示テスト", false, is_debug_mode);
+                debug_print_int("fsize", fsize, true, is_debug_mode);
+                debug_print_msg(fb_buf, true, is_debug_mode);
                 // write
                 write(connfd, fb_buf, sizeof(fb_buf) - 1);
             }
