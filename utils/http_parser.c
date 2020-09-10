@@ -38,7 +38,7 @@ fail:
     return -1;
 }
 
-void print_parsed_req(const char* place, http_req *parsed_req) {
+void print_struct_req(const char* place, http_req *parsed_req) {
     is_debug_mode = true;
     debug_print("Info", place, false, is_debug_mode);
     debug_print_msg("  parsed_req の中身を print します。", true, is_debug_mode);
@@ -209,5 +209,5 @@ void parse_HTTP_req(char *http_req_str, http_req* parsed_req) {
         p++;
     }
 
-    // print_parsed_req("http_parser.c", parsed_req);
+    // print_struct_req("http_parser.c", parsed_req);
 }

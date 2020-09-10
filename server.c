@@ -22,7 +22,8 @@ RETSIGTYPE reaper(int sn) {
 int main(void) {
     int listenfd, connfd, nbytes;
     char http_msg[BUFSIZ];
-    struct http_req_template parsed_http_req;
+    http_req parsed_http_req;  // parse HTTP Request
+    http_res build_http_res;  // build HTTP Response
     char fb_buf[BUFSIZ*2];
     struct sockaddr_in servaddr;
 
@@ -64,14 +65,9 @@ int main(void) {
                 debug_print_str("%s", http_msg, true, is_debug_mode);  // HTTPリクエストを表示
                 // HTTP リクエストを http_req 構造体に分解 (parse) する。
                 parse_HTTP_req(http_msg, &parsed_http_req);
-                // print_parsed_req("server.c", &parsed_http_req);
+                // print_struct_req("server.c", &parsed_http_req);
                 // http_req の情報を元に、http_res を作成 (build) する。
-                build_HTTP_res(&parsed_http_req);
-                // ファイル読み込み
-                int fsize = read_file_binary("test.txt", fb_buf);
-                debug_print("Info", "ファイルの中身を表示テスト", false, is_debug_mode);
-                debug_print_int("fsize", fsize, true, is_debug_mode);
-                debug_print_msg(fb_buf, true, is_debug_mode);
+                build_HTTP_res(&parsed_http_req, &build_http_res);
                 // write
                 write(connfd, fb_buf, sizeof(fb_buf) - 1);
             }
