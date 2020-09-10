@@ -64,7 +64,7 @@ int main(void) {
                 debug_print_str("%s", http_msg, true, is_debug_mode);  // HTTPリクエストを表示
                 // HTTP リクエストを http_req 構造体に分解 (parse) する。
                 parse_HTTP_req(http_msg, &parsed_http_req);
-                print_parsed_req("server.c", &parsed_http_req);
+                // print_parsed_req("server.c", &parsed_http_req);
                 // http_req の情報を元に、http_res を作成 (build) する。
                 build_HTTP_res(&parsed_http_req);
                 // ファイル読み込み

@@ -2,4 +2,4 @@
 #include <stdlib.h>
 #include <sys/stat.h>
 
-int read_file_binary(char *req_path, int *fb_buf);
+int read_file_binary(const char* req_path, char* fb_buf);

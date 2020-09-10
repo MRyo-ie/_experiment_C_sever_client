@@ -209,5 +209,5 @@ void parse_HTTP_req(char *http_req_str, http_req* parsed_req) {
         p++;
     }
 
-    print_parsed_req("http_parser.c", parsed_req);
+    // print_parsed_req("http_parser.c", parsed_req);
 }
