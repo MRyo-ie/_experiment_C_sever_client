@@ -24,7 +24,7 @@ int main(void) {
     char http_msg[BUFSIZ];
     http_req parsed_http_req;  // parse HTTP Request
     http_res build_http_res;  // build HTTP Response
-    char fb_buf[BUFSIZ*2];
+    char buf[BUFSIZ*2];
     struct sockaddr_in servaddr;
 
     //***  初期化  ***//
@@ -67,9 +67,9 @@ int main(void) {
                 parse_HTTP_req(http_msg, &parsed_http_req);
                 // print_struct_req("server.c", &parsed_http_req);
                 // http_req の情報を元に、http_res を作成 (build) する。
-                build_HTTP_res(&parsed_http_req, &build_http_res);
+                build_HTTP_res(&parsed_http_req, &build_http_res, buf);
                 // write
-                write(connfd, fb_buf, sizeof(fb_buf) - 1);
+                write(connfd, buf, sizeof(buf) - 1);
             }
             // close
             close(connfd);
