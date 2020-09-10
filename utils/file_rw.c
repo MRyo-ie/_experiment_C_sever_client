@@ -17,15 +17,19 @@ int read_file_binary(const char* req_path, char* fb_buf) {
     // ファイルポインタを取得 fopen()
     sprintf(path, "datas/%s", req_path);
     if ((fsize = get_file_size(path)) == -1L ||
-        (fp = fopen(path, "r")) == NULL) {
+        (fp = fopen(path, "rb")) == NULL) {
         printf("file open error!!\n");
         return -1;
     }
 
     // ファイルデータ（バイナリ）を読み込み
-    int r = fread(fb_buf, sizeof(fb_buf[0]), BUFSIZ, fp);
+    int r = fread(fb_buf, sizeof(fb_buf[0]), fsize+2, fp);
     fclose(fp);
 
     // ファイルサイズ（？）を返す。
     return r;
 }
+
+
+
+

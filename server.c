@@ -24,7 +24,7 @@ int main(void) {
     char http_msg[BUFSIZ];
     http_req parsed_http_req;  // parse HTTP Request
     http_res build_http_res;  // build HTTP Response
-    char buf[BUFSIZ*2];
+    char buf[BUFSIZ*100];
     struct sockaddr_in servaddr;
 
     //***  初期化  ***//
@@ -62,7 +62,7 @@ int main(void) {
             close(listenfd);
             while ((nbytes = read(connfd, http_msg, sizeof(http_msg))) > 0) {
                 debug_print("Info", "HTTP Request ↓", true, is_debug_mode);
-                debug_print_str("%s", http_msg, true, is_debug_mode);  // HTTPリクエストを表示
+                debug_print_msg(http_msg, true, is_debug_mode);  // HTTPリクエストを表示
                 // HTTP リクエストを http_req 構造体に分解 (parse) する。
                 parse_HTTP_req(http_msg, &parsed_http_req);
                 // print_struct_req("server.c", &parsed_http_req);

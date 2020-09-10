@@ -10,12 +10,12 @@ typedef struct http_res_template {
     int code;  // 200, 404, 405, ...
     char message[16];
     char content_type[128];  // text/html
-    int data_size;
-    char body[BUFSIZ];
+    int content_length;
+    char body[BUFSIZ*100];
 } http_res;
 #endif
 
-
+void analyze_path(http_req* req);
 void build_HTTP_res(http_req* parsed_req, http_res* build_res, char* buf);
 
 void print_struct_res(const char* place, http_res* parsed_res, bool is_print_body);
