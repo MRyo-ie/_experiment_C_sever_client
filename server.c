@@ -60,7 +60,7 @@ int main(void) {
             while ((nbytes = read(connfd, http_msg, sizeof(http_msg))) > 0) {
                 debug_print("Info", "HTTP Request ↓ (http_msg)", true);
                 printf("%s\n", http_msg);  // HTTPリクエストを表示
-                parse_HTTP_req(http_msg, parsed_http_req);
+                parse_HTTP_req(http_msg, &parsed_http_req);
                 // ファイル読み込み
                 // read_file_binary("test.txt", fb_buf);
                 // printf("%s \n", fb_buf);
