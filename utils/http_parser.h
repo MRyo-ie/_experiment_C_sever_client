@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <string.h>
-
 #include "debug_print.h"
 
 #ifndef HTTP_PARSER_H
@@ -43,4 +42,4 @@ int find_header_term(char *line);
 // HTTP Request ヘッダーを構造体にパースする。
 void parse_HTTP_req(char *http_req_str, http_req* parsed_req);
 
-void print_parsed_req(http_req *parsed_req);
+void print_parsed_req(const char* place, http_req *parsed_req);

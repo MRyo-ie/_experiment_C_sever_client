@@ -1,6 +1,6 @@
 #include "http_parser.h"
 
-static const bool is_debug_mode = false;
+static bool is_debug_mode = false;
 
 // 文字列(char*) の文字数を数える。
 int str_len(const char *s) {
@@ -38,14 +38,17 @@ fail:
     return -1;
 }
 
-void print_parsed_req(http_req *parsed_req) {
-    debug_print("Info", "http_req の中身", true, is_debug_mode);
-    debug_print_str("method", parsed_req->method, true, is_debug_mode);
-    debug_print_str("path", parsed_req->path, true, is_debug_mode);
-    debug_print_str("http_ver", parsed_req->http_ver, true, is_debug_mode);
-    debug_print_str("host", parsed_req->host, true, is_debug_mode);
-    debug_print_str("accept", parsed_req->accept, true, is_debug_mode);
+void print_parsed_req(const char* place, http_req *parsed_req) {
+    is_debug_mode = true;
+    debug_print("Info", place, false, is_debug_mode);
+    debug_print_msg("  parsed_req の中身を print します。", true, is_debug_mode);
+    debug_print_str("method   ", parsed_req->method, true, is_debug_mode);
+    debug_print_str("path     ", parsed_req->path, true, is_debug_mode);
+    debug_print_str("http_ver ", parsed_req->http_ver, true, is_debug_mode);
+    debug_print_str("host     ", parsed_req->host, true, is_debug_mode);
+    debug_print_str("accept   ", parsed_req->accept, true, is_debug_mode);
     debug_print_str("user_agent", parsed_req->user_agent, true, is_debug_mode);
+    is_debug_mode = false;
 }
 
 // HTTP Request ヘッダ ー（１行分）から、メソッド、HTTPバージョン、key:value
@@ -206,5 +209,5 @@ void parse_HTTP_req(char *http_req_str, http_req* parsed_req) {
         p++;
     }
 
-    print_parsed_req(parsed_req);
+    print_parsed_req("http_parser.c", parsed_req);
 }

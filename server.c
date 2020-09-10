@@ -23,7 +23,7 @@ int main(void) {
     int listenfd, connfd, nbytes;
     char http_msg[BUFSIZ];
     struct http_req_template parsed_http_req;
-    char fb_buf[BUFSIZ];
+    char fb_buf[BUFSIZ*2];
     struct sockaddr_in servaddr;
 
     //***  初期化  ***//
@@ -60,9 +60,13 @@ int main(void) {
         if (pid == 0) {
             close(listenfd);
             while ((nbytes = read(connfd, http_msg, sizeof(http_msg))) > 0) {
-                debug_print("Info", "HTTP Request ↓ (http_msg)", true, is_debug_mode);
-                printf("%s\n", http_msg);  // HTTPリクエストを表示
+                debug_print("Info", "HTTP Request ↓", true, is_debug_mode);
+                debug_print_str("%s", http_msg, true, is_debug_mode);  // HTTPリクエストを表示
+                // HTTP リクエストを http_req 構造体に分解 (parse) する。
                 parse_HTTP_req(http_msg, &parsed_http_req);
+                print_parsed_req("server.c", &parsed_http_req);
+                // http_req の情報を元に、http_res を作成 (build) する。
+                build_HTTP_res(&parsed_http_req);
                 // ファイル読み込み
                 int fsize = read_file_binary("test.txt", fb_buf);
                 debug_print("Info", "ファイルの中身を表示テスト", false, is_debug_mode);
