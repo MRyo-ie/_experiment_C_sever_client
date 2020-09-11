@@ -10,14 +10,12 @@ long get_file_size(const char *file) {
 }
 
 int read_file_binary(const char* req_path, char* fb_buf) {
-    char path[128];
     FILE *fp;
     long fsize;
 
     // ファイルポインタを取得 fopen()
-    sprintf(path, "datas/%s", req_path);
-    if ((fsize = get_file_size(path)) == -1L ||
-        (fp = fopen(path, "rb")) == NULL) {
+    if ((fsize = get_file_size(req_path)) == -1L ||
+        (fp = fopen(req_path, "rb")) == NULL) {
         printf("file open error!!\n");
         return -1;
     }

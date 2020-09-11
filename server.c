@@ -67,6 +67,9 @@ int main(void) {
                 parse_HTTP_req(http_msg, &parsed_http_req);
                 // print_struct_req("server.c", &parsed_http_req);
                 // http_req の情報を元に、http_res を作成 (build) する。
+                analyze_path(&parsed_http_req, &build_http_res);
+                // debug
+                print_struct_res("server.c", &build_http_res, false);
                 build_HTTP_res(&parsed_http_req, &build_http_res, buf);
                 // write
                 write(connfd, buf, sizeof(buf) - 1);
