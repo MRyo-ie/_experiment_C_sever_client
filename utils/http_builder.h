@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include "http_parser.h"
 #include "file_rw.h"
+#include "str_ctrl.h"
 
 #ifndef HTTP_BUILDER_H
 #define HTTP_BUILDER_H
@@ -34,12 +35,12 @@ typedef enum {
 } EXTS_TYPES;
 
 // key の検索用
-struct data_type {
+struct EXTS_DATA_CNST {
     EXTS_TYPES ext_type;
     int ext_num;
-    char *exts_names[5];
+    char *ext_names[5];
 };
-struct data_type data_types[EXTS_TYPES_NUM] = {
+static struct EXTS_DATA_CNST exts_datas[EXTS_TYPES_NUM] = {
     { text, TEXT_EXTS_NUM, { "txt", "html" } },
     { binary, IMG_EXTS_NUM, { "jpg",  "png",  "bmp" } }
 };
@@ -47,6 +48,6 @@ struct data_type data_types[EXTS_TYPES_NUM] = {
 
 
 int analyze_path(http_req* req, http_res* res);
-void build_HTTP_res(http_req* parsed_req, http_res* build_res, char* buf);
+void build_HTTP_res(http_res* build_res, char* buf);
 
 void print_struct_res(const char* place, http_res* parsed_res, bool is_print_body);

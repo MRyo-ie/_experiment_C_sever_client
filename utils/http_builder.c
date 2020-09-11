@@ -2,16 +2,27 @@
 
 static bool is_debug_mode = true;
 
-void get_file_list() {
-    DIR* dirp;
+
+// 404 not Found! に Response を更新する。
+void not_found_404(http_res* res) {
+    res->code = 404;
+    sprintf(res->message, "%s", "Not Found !");
+}
+
+// file IO周りのラッパー
+void get_file_list(const char* path, char f_list[2048]) {
+    DIR* dirp = opendir(path);
     struct dirent* dp;
-    dirp = opendir(".");
+    char buf[256];
+
     if (dirp == NULL) {
-        perror("opendir");
+        perror("[Error] opendir");
         exit(1);
     }
+    strcpy(f_list, "\n【 ファイル一覧 】\n\n");
     while ((dp = readdir(dirp)) != NULL) {
-        printf("%s\n", dp->d_name);
+        sprintf(buf, "    %s\n", dp->d_name);
+        strcat(f_list, buf);
     }
     closedir(dirp);
 }
@@ -19,27 +30,17 @@ void get_file_list() {
 void read_text_data(http_res* res, const char* fpath) {
     //  http://localhost:10000/test.text
     res->content_length = read_file_binary(fpath, res->body);
+    if (res->content_length == -1) not_found_404(res);
 }
 void read_img_data(http_res* res, const char* fpath) {
     //  http://localhost:10000/explosionAA.png
     res->content_length = read_file_binary(fpath, res->body);
+    if (res->content_length == -1) not_found_404(res);
 }
 
-// reqを解析 → resを埋める。
-int analyze_path(http_req* req, http_res* res) {
-    // data/ をルートとして、req->path の相対パスを作る。
-    char path[128];
-    sprintf(path, "datas%s", req->path);
 
-    print_struct_req("http_builder.c", req);
-    // res を初期化する。
-    // Response用のデータを集める。（ = 構造体を埋める）
-    // sprintf(res->http_ver, "%s", req->http_ver);
-    sprintf(res->http_ver, "%s", "HTTP/1.0");
-    res->code = 200;  // OK
-    sprintf(res->message, "%s", "OK");
-
-    // path の最後の拡張子から、データの種類を推測する。→ res->content_type
+// path から拡張子を検索して、データの種類を推測する。→ res->content_typez
+int extract_ext(const char* path, http_res* res) {
     char *p, *p_e;
     p = strrchr(path, '.');
     p_e = strrchr(path, '\0');
@@ -51,17 +52,26 @@ int analyze_path(http_req* req, http_res* res) {
         char ext[5];
         sprintf(ext, "%s", (p + 1));
         for (int t = 0; t < EXTS_TYPES_NUM; t++) {
-            for (int i = 0; i < data_types[t].ext_num; i++) {
+            for (int i = 0; i < exts_datas[t].ext_num; i++) {
                 debug_print_str("  ext", ext, false, is_debug_mode);
-                debug_print_str("exts_names[i]", data_types[t].exts_names[i], false, is_debug_mode);
-                debug_print_int("=>  strcmp(ext, exts_names[i])", strcmp(ext, data_types[t].exts_names[i]), true, is_debug_mode);
+                debug_print_str("ext_names[i]", exts_datas[t].ext_names[i], false, is_debug_mode);
+                debug_print_int("=>  strcmp(ext, ext_names[i])", strcmp(ext, exts_datas[t].ext_names[i]), true, is_debug_mode);
 
-                if (strcmp(ext, data_types[t].exts_names[i]) == 0) {
+                if (strcmp(ext, exts_datas[t].ext_names[i]) == 0) {
                     debug_print_msg("    enum ヒット！", true, is_debug_mode);
                     // key_enum = (TEXT_EXTENSIONS)i;
                     switch (t) {
                         case text:
-                            sprintf(res->content_type, "%s", "text/plain; charset=UTF-8");
+                            switch (i) {
+                                case txt:
+                                    sprintf(res->content_type, "%s", "text/plain; charset=UTF-8");
+                                    break;
+                                case html:
+                                    sprintf(res->content_type, "%s", "text/html; charset=UTF-8");
+                                    break;
+                                default:
+                                    break;
+                            }
                             read_text_data(res, path);  // ファイル読み込み
                             return 0;
                         case binary:
@@ -76,13 +86,44 @@ int analyze_path(http_req* req, http_res* res) {
         }
     }
     // 拡張子がない？
-    res->code = 404;
-    sprintf(res->message, "%s", "Not Found !");
+    not_found_404(res);
     return -1;
 }
 
+// reqを解析 → resを埋める。
+int analyze_path(http_req* req, http_res* res) {
+    print_struct_req("http_builder.c", req);
+    // res を初期化する。
+    // sprintf(res->http_ver, "%s", req->http_ver);
+    sprintf(res->http_ver, "%s", "HTTP/1.0");
+    res->code = 200;  // OK
+    sprintf(res->message, "%s", "OK");
+
+    // data/ をルートとして、req->path の相対パスを作る。
+    char path[128];
+    sprintf(path, "datas%s", req->path);
+    // Request が file か dir かを確認する。
+    char *p_end = strrchr(path, '\0');
+    if (*(p_end-1) == '/') {
+        /*--  dir  --*/
+        char f_list[2048];
+        get_file_list(path, f_list);
+        // res を更新する。
+        strcpy(res->body, f_list);
+        sprintf(res->content_type, "%s", "text/plain; charset=UTF-8");
+        res->content_length = str_len(f_list);
+    } else {
+        /*--  file  --*/
+        // path から拡張子を検索して、データの種類を推測する。→ res->content_type
+        extract_ext(path, res);
+    }
+    return 0;
+}
+
+
+
 // HTTP Response を build する。
-void build_HTTP_res(http_req* req, http_res* res, char* buf) {
+void build_HTTP_res(http_res* res, char* buf) {
     /*
         HTTP/1.1 200 OK
         Content-Type: text/html
@@ -121,7 +162,7 @@ void print_struct_res(const char* place, http_res* res, bool is_print_body) {
     is_debug_mode = true;
     debug_print("Info", place, false, is_debug_mode);
     debug_print_msg("  res の中身を print します。", true, is_debug_mode);
-    debug_print_str("http_ver ", res->http_ver, true, is_debug_mode);
+    debug_print_str("http_ver    ", res->http_ver, true, is_debug_mode);
     // debug_print_char("http_ver[0]", res->http_ver[0], true, is_debug_mode);
     debug_print_int("code        ", res->code, true, is_debug_mode);
     debug_print_str("message     ", res->message, true, is_debug_mode);

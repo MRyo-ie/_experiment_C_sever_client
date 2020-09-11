@@ -1,13 +1,6 @@
 #include "http_parser.h"
 
-static bool is_debug_mode = false;
-
-// 文字列(char*) の文字数を数える。
-int str_len(const char *s) {
-    int n = 0;
-    while (*s++) n++;
-    return n;
-}
+static bool is_debug_mode = true;
 
 // リクエストヘッダの末尾探索
 int find_header_term(char *line) {

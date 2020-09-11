@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "debug_print.h"
+#include "str_ctrl.h"
 
 #ifndef HTTP_PARSER_H
 #define HTTP_PARSER_H

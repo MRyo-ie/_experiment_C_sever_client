@@ -70,7 +70,7 @@ int main(void) {
                 analyze_path(&parsed_http_req, &build_http_res);
                 // debug
                 print_struct_res("server.c", &build_http_res, false);
-                build_HTTP_res(&parsed_http_req, &build_http_res, buf);
+                build_HTTP_res(&build_http_res, buf);
                 // write
                 write(connfd, buf, sizeof(buf) - 1);
             }
