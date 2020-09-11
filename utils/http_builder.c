@@ -4,9 +4,9 @@ static bool is_debug_mode = true;
 
 
 // 404 not Found! に Response を更新する。
-void not_found_404(http_res* res) {
-    res->code = 404;
-    sprintf(res->message, "%s", "Not Found !");
+void set_failure_res(http_res* res, int code, const char* message) {
+    res->code = code;
+    sprintf(res->message, "%s", message);
 }
 
 // file IO周りのラッパー
@@ -30,12 +30,14 @@ void get_file_list(const char* path, char f_list[2048]) {
 void read_text_data(http_res* res, const char* fpath) {
     //  http://localhost:10000/test.text
     res->content_length = read_file_binary(fpath, res->body);
-    if (res->content_length == -1) not_found_404(res);
+    if (res->content_length == -1)
+        set_failure_res(res, 404, "Not Found !");
 }
 void read_img_data(http_res* res, const char* fpath) {
     //  http://localhost:10000/explosionAA.png
     res->content_length = read_file_binary(fpath, res->body);
-    if (res->content_length == -1) not_found_404(res);
+    if (res->content_length == -1)
+        set_failure_res(res, 404, "Not Found !");
 }
 
 
@@ -86,7 +88,7 @@ int extract_ext(const char* path, http_res* res) {
         }
     }
     // 拡張子がない？
-    not_found_404(res);
+    set_failure_res(res, 404, "Not Found !");
     return -1;
 }
 
@@ -102,6 +104,13 @@ int analyze_path(http_req* req, http_res* res) {
     // data/ をルートとして、req->path の相対パスを作る。
     char path[128];
     sprintf(path, "datas%s", req->path);
+    /*--  パスが安全か確認する。  --*/
+    ////  1. "/../" が含まれていたら、403 Forbidden を返す。
+    if (strstr(path, "/../") != NULL) {
+        set_failure_res(res, 403, "Forbidden");
+        return 403;
+    }
+
     // Request が file か dir かを確認する。
     char *p_end = strrchr(path, '\0');
     if (*(p_end-1) == '/') {
@@ -117,7 +126,7 @@ int analyze_path(http_req* req, http_res* res) {
         // path から拡張子を検索して、データの種類を推測する。→ res->content_type
         extract_ext(path, res);
     }
-    return 0;
+    return res->code;
 }
 
 
